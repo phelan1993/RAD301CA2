@@ -1,0 +1,257 @@
+﻿@model IEnumerable<S00126107.Models.Movie>
+<div class="navbar navbar-default">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="Home">MovieFacts.com</a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">View By<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="Home">Movies</a></li>
+                    <li><a href="Actors">Actors</a></li>
+                </ul>
+            </li>
+        </ul>
+        @using (Html.BeginForm("Index", "Home", FormMethod.Get, new{@class="navbar-form navbar-left"}))
+        {
+            <p>
+                @Html.TextBox("searchString", null, ViewBag.searchString as string, new { placeholder="Search", @class = "form-control col-lg-8" })
+            </p>
+        }
+        @*<form class="navbar-form navbar-left">
+            <input id="searchbar" class="form-control col-lg-8" placeholder="Search" type="text">
+        </form>*@
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Add <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a onclick="addMovie()">Movie</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="container">
+    <h2>@ViewBag.Title</h2>
+    <div class="row">
+        <div class="col-md-pull-4">
+            <table class="table table-striped">
+                <tr>
+                    <th>
+                        <a href="@Url.Action("Index", new { sortOrder = @ViewBag.titleOrder })" style="color:darkcyan">
+                            Title
+                            @if (ViewBag.titleOrder == "descTitle")
+                            {
+                                <span aria-hidden="true">(Z-A)</span>
+                            }
+                            else if (ViewBag.titleOrder == "ascTitle")
+                            {
+                                <span aria-hidden="true">(A-Z)</span>
+
+                            }
+                        </a>      
+                    </th>
+                    <th>
+                    <a href="@Url.Action("Index", new { sortOrder = @ViewBag.dateOrder })" style="color:darkcyan">
+                        Release Date
+                        @if (ViewBag.dateOrder == "descDate")
+                        {
+                            <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+                        }
+                        else if (ViewBag.dateOrder == "ascDate")
+                        {
+                            <span class="glyphicon glyphicon-circle-arrow-up" aria-hidden="true"></span>
+                        }
+                    </a>
+                    <th>
+                        <a href="@Url.Action("Index")" style="color:darkcyan">@Html.DisplayNameFor(item => item.Genre)</a>
+                    </th>
+                    <th>
+                        <a href="@Url.Action("Index", new { sortOrder = @ViewBag.ratingOrder })" style="color:darkcyan">
+                            Rating
+                            @if (ViewBag.ratingOrder == "descRating")
+                            {
+                                <span class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+                            }
+                            else if (ViewBag.ratingOrder == "ascRating")
+                            {
+                                <span class="glyphicon glyphicon-circle-arrow-up" aria-hidden="true"></span>
+
+                            }
+                        </a>
+                    </th>
+                    <th></th>
+                </tr>
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="padding-right: 30px" onmouseover="showCast('@item.MovieId')" onmouseout="hideCast()">
+                            <div id="cast"></div>
+                            <a onclick="showMovie('@item.MovieId')">@Html.DisplayFor(modelItem => item.Title)</a>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ReleaseDate)
+                        </td>
+                        <td>
+                            <a href="@Url.Action("Index", new{genreFilter = item.Genre})">@Html.DisplayFor(modelItem => item.Genre.Title)</a>
+                        </td>
+                        <td>
+                        <div class="rateit" data-rateit-max="10" data-rateit-value="@Html.DisplayFor(modelItem => item.Rating)" 
+                             data-rateit-ispreset="true" data-rateit-readonly="true">
+                        </div>
+                        <td>
+                            <a onclick="editMovie('@item.MovieId')" class="btn btn-raised btn-success btn-xs">Edit</a>
+                            <a onclick="showMovie('@item.MovieId')" class="btn btn-raised btn-info btn-xs">Details</a>
+                            <a onclick="deleteMovie('@item.MovieId')" class="btn btn-raised btn-danger btn-xs">Delete</a>
+                        </td>
+
+                    </tr>
+                }
+
+            </table>
+            <!--fill this div with selected movie-->
+            <div id="details"></div>
+            <div id="edit"></div>
+            <div id="create"></div>
+            <div id="delete"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    
+    <script>
+        $(document).ready(function() {
+            $('#datetimepicker').datepicker();
+        });
+
+        function addMovie() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Create")',
+                success: function(data) {
+                    $('#create').html(data);
+                    $('#create').fadeIn(3000);
+                }
+            });
+        }
+
+        function showCast(movieId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetMovieCast")',
+                data: { id: movieId },
+                success: function (data) {
+                    $('#cast').show();
+                    $('#cast').html(data);
+                }
+            });
+        }
+
+        setTimeout(
+            function hideCast() {
+                $('#cast').hide();
+            }, 500);
+
+        function showMovie(movieId) {
+            //show details of clicked movie
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details")',
+                data: { id: movieId },
+                success: function (data) {
+                    $('#details').html(data)
+                        .bPopup({
+                            modalColor: 'darkcyan'
+                        })
+                        .show();
+                }
+            });
+        }
+        function editMovie(movieId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Edit")',
+                data: { id: movieId },
+                success: function (data) {
+                    $('#details').html(data)
+                        .bPopup({
+                            modalColor: 'green'
+                        })
+                        .show();
+                }
+            });
+        }
+        function deleteMovie(movieId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Delete")',
+                data: { id: movieId },
+                success: function(data) {
+                    $('#delete').html(data)
+                        .bPopup({
+                            modalColor: 'darkred'
+                        })
+                    .show();
+                }
+            });
+        }
+    </script>
+    <style>
+        #details {
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+            position:static;
+            background-color: white;
+            border-radius: 3px;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+        #edit {
+            margin-left: auto;
+            margin-right: auto;
+            width: 40%;
+            box-shadow: 0 0 10px #9ecaed;
+            border-radius: 3px;
+        }
+        #create {
+            position: fixed;
+            top: 1em;
+            right: 1em;
+            background-color: white;
+            width: 40%;
+            opacity: 0.95;
+            box-shadow: 10px 10px 5px #888888;
+            border-radius: 3px;
+        }
+
+        #delete {
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+            position:static;
+            background-color: white;
+            border-radius: 3px;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }
+
+        #cast {
+            position: fixed;
+            background-color: white;
+            width: 40%;
+            opacity: 0.95;
+            box-shadow: 10px 10px 5px #888888;
+            border-radius: 3px;
+        }
+    </style>
+}

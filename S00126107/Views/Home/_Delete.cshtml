@@ -1,0 +1,12 @@
+﻿@model S00126107.Models.Movie
+           
+<div class="container">
+    <h4>Are you sure you want to delete @Model.Title?</h4>
+    
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <input type="submit" value="Delete" class="btn btn-danger"/> <a class="btn btn-primary" href="@Url.Action("Index")">Back</a>
+
+    }
+</div>

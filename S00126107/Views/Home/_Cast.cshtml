@@ -1,0 +1,23 @@
+﻿@model IEnumerable<S00126107.Models.MovieCast>
+
+<div class="container" style="width: 90%">
+    <p>
+        <h4>Cast</h4>
+    </p>
+    <table class="table">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <img src="@Html.DisplayFor(modelItem => item.Actor.ImageUrl)" alt="actor" height="90" width="65"/> @Html.DisplayFor(modelItem => item.Actor.FullName) as <i>@Html.DisplayFor(modelItem => item.ScreenName)</i>
+                </td>
+                @*<td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>*@
+            </tr>
+        }
+
+    </table>
+</div>

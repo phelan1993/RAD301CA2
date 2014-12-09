@@ -1,0 +1,120 @@
+﻿@model IEnumerable<S00126107.Models.Actor>
+@*@model PagedList.IPagedList<S00126107.Models.Actor>*@
+
+
+<div class="navbar navbar-default">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="Home">MovieFacts.com</a>
+    </div>
+    <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">View By<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="Home">Movies</a></li>
+                    <li><a href="Actors">Actors</a></li>
+                </ul>
+            </li>
+        </ul>
+        @using (Html.BeginForm("Index", "Home", FormMethod.Get, new { @class = "navbar-form navbar-left" }))
+        {
+            <p>
+                @Html.TextBox("searchString", null, ViewBag.searchString as string, new { placeholder = "Search", @class = "form-control col-lg-8" })
+            </p>
+        }
+        @*<form class="navbar-form navbar-left">
+                <input id="searchbar" class="form-control col-lg-8" placeholder="Search" type="text">
+            </form>*@
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">Add <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a onclick="addActor()">Actor</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="container">
+    <table class="table table-striped">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Age)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BirthPlace)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Gender)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Age)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.BirthPlace)
+                </td>
+                <td>
+                    @*@Html.ActionLink("Edit", "Edit", new {@class="btn btn-success", id = item.ActorId }) |
+                    @Html.ActionLink("Details", "Details", new { @class = "btn btn-info", id = item.ActorId }) |
+                    @Html.ActionLink("Delete", "Delete", new { @class = "btn btn-danger", id = item.ActorId })*@
+                    <a onclick="editActor('@item.ActorId')" class="btn btn-raised btn-success btn-xs">Edit</a>
+                    <a onclick="showActor('@item.ActorId')" class="btn btn-raised btn-info btn-xs">Details</a>
+                    <a onclick="deleteActor('@item.ActorId')" class="btn btn-raised btn-danger btn-xs">Delete</a>
+                </td>
+            </tr>
+        }
+
+    </table>
+    <div id="details"></div>
+</div>
+
+@section scripts {
+    <script>
+        function showActor(actorId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Details")',
+                data: { id: actorId },
+                success: function (data) {
+                    $('#details').html(data)
+                        .bPopup({
+                            modalColor: 'darkcyan'
+                        })
+                        .show();
+                }
+            });
+        }
+    </script>
+    <style>
+        /*#details {
+            margin-left: auto;
+            margin-right: auto;
+            width: 50%;
+            position:static;
+            background-color: white;
+            border-radius: 3px;
+            border-color: #9ecaed;
+            box-shadow: 0 0 10px #9ecaed;
+        }*/
+    </style>
+}
